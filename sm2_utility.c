@@ -133,7 +133,7 @@ int write_file_content(const char *file_path, void *content, size_t len) {
 int sm2_encrypt_file(const char *plain_file_path, const char *ctext_file_path) {
     int succ = 0;
     char *message = NULL;
-    const char *privkey_hex = "121b2110ab";
+    const char *privkey_hex = "900a2110ab";
     uint8_t *ctext = NULL;
     // 读明文
     int msg_len = read_file_content(plain_file_path, &message);
@@ -163,7 +163,7 @@ DONE:
 int sm2_decrypt_file(const char *ctext_file_path, const char *plain_file_path) {
     int succ = 0;
     char *ctext = NULL;
-    const char *privkey_hex = "121b2110ab";
+    const char *privkey_hex = "900a2110ab";
     uint8_t *message = NULL;
     // 读密文
     int ctext_len = read_file_content(ctext_file_path, &ctext);
