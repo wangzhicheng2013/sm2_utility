@@ -3,24 +3,39 @@
 // 解密:./sm2_utility --run_mode decypt_file --ctext_file_path ./3.txt --plain_file_path ./4.txt
 #include <getopt.h>
 #include "sm2_utility.h"
-char *const short_options = "rpch:";
+char *const short_options = "rpkcsth:";
 char *l_opt_arg = NULL; 
 struct option long_options[] = {  
      { "run_mode",            1,   NULL,    'r'     },
      { "plain_file_path",     1,   NULL,    'p'     },
+     { "key_file_path",       1,   NULL,    'k'     },      
      { "ctext_file_path",     1,   NULL,    'c'     },
+     { "string_hex_key",      1,   NULL,    's'     },      
+     { "type_of_curve",       1,   NULL,    't'     },      
      { "help",                0,   NULL,    'h'     },  
      {      0,                0,      0,     0      },  
 };
 void usage() {
     printf("sm2 encrypt:./sm2_utility --run_mode encypt_file --plain_file_path ./1.txt --ctext_file_path ./3.txt\n");
+    printf("sm2 encrypt:./sm2_utility --run_mode encypt_file_with_key --plain_file_path ./1.txt --string_hex_key 0011aaaB --ctext_file_path ./3.txt\n");
+    printf("sm2 encrypt:./sm2_utility --run_mode encypt_file_with_key --plain_file_path ./1.txt --string_hex_key 0011aaaB --ctext_file_path ./3.txt --type_of_curve 1172\n");
+    printf("sm2 encrypt:./sm2_utility --run_mode encypt_file_with_key_file --plain_file_path ./1.txt --key_file_path ./2.txt --ctext_file_path ./3.txt\n");
+    printf("sm2 encrypt:./sm2_utility --run_mode encypt_file_with_key_file --plain_file_path ./1.txt --key_file_path ./2.txt --ctext_file_path ./3.txt --type_of_curve 1172\n");
+
     printf("sm2 decrypt:./sm2_utility --run_mode decypt_file --ctext_file_path ./3.txt --plain_file_path ./4.txt\n");
+    printf("sm2 decrypt:./sm2_utility --run_mode decypt_file_with_key --ctext_file_path ./3.txt --string_hex_key 0011aaaB --plain_file_path ./1.txt\n");
+    printf("sm2 decrypt:./sm2_utility --run_mode decypt_file_with_key --ctext_file_path ./3.txt --string_hex_key 0011aaaB --plain_file_path ./1.txt --type_of_curve 1172\n");
+    printf("sm2 decrypt:./sm2_utility --run_mode decypt_file_with_key_file --ctext_file_path ./3.txt --key_file_path ./2.txt --plain_file_path ./1.txt\n");
+    printf("sm2 decrypt:./sm2_utility --run_mode decypt_file_with_key_file --ctext_file_path ./3.txt --key_file_path ./2.txt --plain_file_path ./1.txt --type_of_curve 1172\n");
 }
 int main(int argc, char **argv) {
     int c = 0;
     char run_mode[64] = { 0 };
     char plain_file_path[128] = { 0 };
     char ctext_file_path[128] = { 0 };
+    char key_file_path[128] = { 0 };
+    char string_hex_key[64] = { 0 };
+    char type_of_curve[64] = { 0 };
     if (argc < 3) {     // 至少有run_mode参数
         usage();
         return -1;
@@ -39,6 +54,18 @@ int main(int argc, char **argv) {
             l_opt_arg = optarg;  
             snprintf(ctext_file_path, sizeof(ctext_file_path), "%s", l_opt_arg);
             break;
+        case 'k':
+            l_opt_arg = optarg;  
+            snprintf(key_file_path, sizeof(key_file_path), "%s", l_opt_arg);
+            break;
+        case 's':
+            l_opt_arg = optarg;  
+            snprintf(string_hex_key, sizeof(string_hex_key), "%s", l_opt_arg);
+            break;
+        case 't':
+            l_opt_arg = optarg;  
+            snprintf(type_of_curve, sizeof(type_of_curve), "%s", l_opt_arg);
+            break;
         case 'h':
             usage();
             break;
@@ -53,6 +80,38 @@ int main(int argc, char **argv) {
     }
     else if (0 == strcmp(run_mode, "decypt_file")) {
         printf("decrypt file result:%d\n", sm2_decrypt_file(ctext_file_path, plain_file_path));
+    }
+    else if (0 == strcmp(run_mode, "encypt_file_with_key")) {
+        if (0 == type_of_curve[0]) {
+            printf("encypt_file_with_key result:%d\n", sm2_encrypt_file_with_privkey(plain_file_path, string_hex_key, NID_sm2, ctext_file_path));
+        }
+        else {
+            printf("encypt_file_with_key result:%d\n", sm2_encrypt_file_with_privkey(plain_file_path, string_hex_key, atoi(type_of_curve), ctext_file_path));
+        }
+    }
+    else if (0 == strcmp(run_mode, "decypt_file_with_key")) {
+        if (0 == type_of_curve[0]) {
+            printf("decypt_file_with_key result:%d\n", sm2_decrypt_file_with_privkey(ctext_file_path, string_hex_key, NID_sm2, plain_file_path));
+        }
+        else {
+            printf("decypt_file_with_key result:%d\n", sm2_decrypt_file_with_privkey(ctext_file_path, string_hex_key, atoi(type_of_curve), plain_file_path));
+        }
+    }
+    else if (0 == strcmp(run_mode, "encypt_file_with_key_file")) {
+        if (0 == type_of_curve[0]) {
+            printf("encypt_file_with_key_file result:%d\n", sm2_encrypt_file_with_privkey_from_file(plain_file_path, key_file_path, NID_sm2, ctext_file_path));
+        }
+        else {
+            printf("encypt_file_with_key_file result:%d\n", sm2_encrypt_file_with_privkey_from_file(plain_file_path, key_file_path, atoi(type_of_curve), ctext_file_path));
+        }
+    }
+    else if (0 == strcmp(run_mode, "decypt_file_with_key_file")) {
+        if (0 == type_of_curve[0]) {
+            printf("decypt_file_with_key_file result:%d\n", sm2_decrypt_file_with_privkey_from_file(ctext_file_path, key_file_path, NID_sm2, plain_file_path));
+        }
+        else {
+            printf("decypt_file_with_key_file result:%d\n", sm2_decrypt_file_with_privkey_from_file(ctext_file_path, key_file_path, atoi(type_of_curve), plain_file_path));
+        }
     }
 
     return 0;
