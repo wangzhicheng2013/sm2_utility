@@ -25,6 +25,9 @@ enum SM2_UTILITY_ERROR_CODE {
     READ_FILE_FAILED     = -10,
     WRITE_FILE_FAILED    = -11,
     PRIVKEY_HEX_INVALID  = -12,
+    ECDSA_SIG_NULL       = -13,
+    ECDSA_SIG_FAILED     = -14,
+    SIG_VERIFY_FAILED    = -15,
 };
 // 检查privkey_hex是否满足16进制字符串
 // 函数返回1 则满足要求 否则返回-12
@@ -111,4 +114,53 @@ int sm2_decrypt_file_with_privkey_from_file(const char *ctext_file_path,
                                             const char *privkey_path,
                                             int curve_type, 
                                             const char *plain_file_path);
+// 创建EC组
+// 以下参数为16进制点坐标
+EC_GROUP *create_EC_group(const char *p_hex, const char *a_hex,
+                          const char *b_hex, const char *x_hex,
+                          const char *y_hex, const char *order_hex,
+                          const char *cof_hex);
+// 使用sm2对消息进行签名
+// user_name:签名
+// message:消息体
+// privkey_hex:16进制的私钥
+// sig_file_path:签名文件路径
+// 签名成功返回1 失败返回错误码
+int sm2_sign_message(const char *user_name,
+             const char *message,
+             size_t msg_len,
+             const char *privkey_hex,
+             const char *sig_file_path);
+// 使用sm2对消息签名进行校验
+// user_name:签名
+// message:消息体
+// privkey_hex:16进制的私钥
+// sig_file_path:签名文件路径
+// 校验成功返回1 失败返回错误码
+int sm2_verify_message(const char *user_name,
+             const char *message,
+             size_t msg_len,
+             const char *privkey_hex,
+             const char *sig_file_path);
+// 使用sm2对消息进行签名
+// user_name_path:签名文件路径
+// message_path:消息体文件路径
+// privkey_hex_path:16进制的私钥路径
+// sig_file_path:签名文件路径
+// 签名成功返回1 失败返回错误码
+int sm2_sign_file(const char *user_name_path,
+             const char *message_path,
+             const char *privkey_hex_path,
+             const char *sig_file_path);
+// 使用sm2对消息签名进行校验
+// user_name_path:签名文件路径
+// message_path:消息体文件路径
+// privkey_hex_path:16进制的私钥路径
+// sig_file_path:签名文件路径
+// 签名成功返回1 失败返回错误码
+int sm2_verify_file(const char *user_name_path,
+             const char *message_path,
+             const char *privkey_hex_path,
+             const char *sig_file_path);
+
 #endif
