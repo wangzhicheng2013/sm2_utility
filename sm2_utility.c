@@ -420,7 +420,6 @@ int sm2_verify_message(const char *user_name,
         goto DONE;
     }
     EC_KEY_set_group(key, group);
-    EC_KEY_set_private_key(key, priv);
     EC_POINT *pt = EC_POINT_new(group);
     if (!pt) {
         succ = ECPOINT_MAKE_FAILED;
