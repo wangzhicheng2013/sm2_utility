@@ -130,39 +130,6 @@ DONE:
     EC_KEY_free(key);
     return succ;
 }
-int read_file_content(const char *file_path, char **content) {
-    FILE *pFile = fopen(file_path, "rb");
-    if (!pFile) {
-        return -1;
-    }
-    fseek(pFile, 0, SEEK_END);
-    size_t len = ftell(pFile);
-    *content = (char *)malloc(len + 1);
-    if (!content) {
-        fclose(pFile);
-        return -1;
-    }
-	rewind(pFile);
-    if (len != fread(*content, 1, len, pFile)) {
-        fclose(pFile);
-        return -1;
-    }
-	(*content)[len] = '\0';
-	fclose(pFile);
-    return len;
-}
-int write_file_content(const char *file_path, void *content, size_t len) {
-    FILE *pFile = fopen(file_path, "wb+");
-    if (!pFile) {
-        return -1;
-    }
-    int size = fwrite(content, 1, len, pFile);
-    if (size != len) {
-        size = -1;
-    }
-    fclose(pFile);
-    return size;
-}
 int sm2_encrypt_file(const char *plain_file_path, const char *ctext_file_path) {
     return sm2_encrypt_file_with_privkey(plain_file_path, "121b2110ab", NID_sm2, ctext_file_path);
 }
